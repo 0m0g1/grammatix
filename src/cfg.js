@@ -80,19 +80,20 @@ class Lexer {
         }
 
         if (currentToken === "'") {
+            console.log(this.input);
             let string = "";
             this.currentPositionOnInput++;
             
-            while (this.input[this.currentPositionOnInput] != "'") {
-                if (this.currentPositionOnInput >= this.input.length) {
+            while (this.input[this.currentPositionOnInput] !== "'") {
+                if (this.currentPositionOnInput < this.input.length) {
                     string += this.input[this.currentPositionOnInput];
                     this.currentPositionOnInput++;
                 } else {
                     throw(`Expected "'" at the end of "${string}"`);
                 }
             }
+            this.currentPositionOnInput++;
 
-            console.log(string);
             return new Token(tokenTypes.string, string);
         }
 
