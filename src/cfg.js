@@ -170,24 +170,15 @@ class Parser {
 
         if (this.currentToken.type == tokenTypes.pipe) {
             this.previousToken = previousToken;
-            const choices = [previousToken];
-            this.eat(tokenTypes.pipe);
-            this.eat(tokenTypes.whitespace);
-            choices.push(...this.parse());
-            
-            const choice = arrayGetRandomChoice(choices);
-            // console.log(choices);
-            // console.log(choice);
-
-            tokens.push(choice);
         
         } else {
             tokens.push(previousToken);
             tokens.push(this.previousToken);
-            tokens.push(...this.parse());
 
         }
-
+        
+        tokens.push(...this.parse());
+        
         return tokens;
     }
     parsePipe() {
