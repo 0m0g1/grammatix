@@ -156,9 +156,11 @@ class Parser {
         if (this.currentToken.type == tokenTypes.whitespace) {
             tokens.push(...this.parse());
 
-        } else {
+        } else if (this.currentToken.type == tokenTypes.pipe) {
             tokens.push(...this.parse());
-        }
+        } else {
+            tokens.push(this.previousToken);
+            tokens.push(...this.parse());
 
         return tokens;
     }
