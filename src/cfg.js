@@ -29,6 +29,7 @@ const tokenTypes = Object.freeze({
     "whitespace": " ",
     "pipe": "|",
     "expandable": "expandable",
+    "comma": ",",
     "dot": ".",
     "string": "string",
     "eoi": "eoi",
@@ -59,7 +60,7 @@ class Lexer {
     getNextToken() {
         const currentToken = this.input[this.currentPositionOnInput];
 
-        if (this.currentPositionOnInput >= this.input.length) {
+        if (this.currentPositionOnInput >= this.input.length - 1) {
             return new Token(tokenTypes.eoi);
         }
         
@@ -80,7 +81,6 @@ class Lexer {
         }
 
         if (currentToken === "'") {
-            console.log(this.input);
             let string = "";
             this.currentPositionOnInput++;
             
@@ -97,25 +97,36 @@ class Lexer {
             return new Token(tokenTypes.string, string);
         }
 
+        if (currentToken == "<") {
+            let tokenString = "";
+            this.currentPositionOnInput++;
+
+            while (this.input[this.currentPositionOnInput] !== ">") {
+                if (this.currentPositionOnInput < this.input.length) {
+                    tokenString += this.input[this.currentPositionOnInput];
+                    this.currentPositionOnInput++;
+                } else {
+                    throw(`Expected ">" at the end of <${tokenString}`);
+                }
+            }
+            this.currentPositionOnInput++;
+
+            return new Token(tokenTypes.expandable, tokenString);
+        }
+
         switch (currentToken) {
-            case "<":
-                this.currentPositionOnInput++;
-                return new Token(tokenTypes.less);
-            case ">":
-                this.currentPositionOnInput++;
-                return new Token(tokenTypes.greater);
             case " ":
                 this.currentPositionOnInput++;
-                return new Token(tokenTypes.whitespace);
-            // case ".":
-            //     this.currentPositionOnInput++;
-            //     return new Token(tokenTypes.string, ".");
+                return new Token(tokenTypes.whitespace, tokenTypes.whitespace);
+            case ".":
+                this.currentPositionOnInput++;
+                return new Token(tokenTypes.string, ".");
+            case ",":
+                this.currentPositionOnInput++;
+                return new Token(tokenTypes.string, ",");
             case "|":
                 this.currentPositionOnInput++;
                 return new Token(tokenTypes.pipe);
-            case "'":
-                this.currentPositionOnInput++;
-                return new Token(tokenTypes.quote);
             default:
                 return new Token(tokenTypes.invalid)
         }
@@ -127,6 +138,7 @@ class Parser {
         this.lexer = lexer;
         this.previousToken = null;
         this.currentToken = this.lexer.getNextToken();
+        this.generatedTokens = [];
     }
     eat(tokenType) {
         if (this.currentToken.type === tokenType) {
@@ -136,125 +148,92 @@ class Parser {
             throw(`Unexpected "${this.currentToken.type}" token, "${tokenType}" expected`);
         }
     }
-    parseDot() {
+    parseString() {
         let tokens = [];
 
-        tokens.push(new Token(tokenTypes.dot, tokenTypes.dot));
-        this.eat(tokenTypes.dot);
-        tokens.push(...this.parse());
+        this.eat(tokenTypes.string);
 
-        return tokens;
-    }
-    parseWhiteSpace() {
-        let tokens = [];
-        
-        const tokenBeforeThisSpace = this.previousToken;
-        this.eat(tokenTypes.whitespace);
-        
-        if (this.currentToken.type === tokenTypes.string) {
-            tokens.push(tokenBeforeThisSpace);
-            tokens.push(new Token(tokenTypes.whitespace, tokenTypes.whitespace));
+        if (this.currentToken.type == tokenTypes.whitespace) {
             tokens.push(...this.parse());
-        
-        } else if (this.currentToken.type === tokenTypes.whitespace) {
-            tokens.push(new Token(tokenTypes.whitespace, tokenTypes.whitespace));
-            tokens.push(new Token(tokenTypes.whitespace, tokenTypes.whitespace));
-            this.eat(tokenTypes.whitespace);
+
+        } else {
             tokens.push(...this.parse());
-        
-        } else if (this.currentToken.type === tokenTypes.pipe) {
-            this.previousToken = tokenBeforeThisSpace;
-
-            const choices = [this.previousToken];
-            this.eat(tokenTypes.pipe);
-            this.eat(tokenTypes.whitespace);
-            choices.push(...this.parse());
-
-            const choice = arrayGetRandomChoice(choices);;
-            
-            tokens.push(choice);
-            
         }
 
         return tokens;
     }
-    parseAngleBracket() {
+    parseWhitespace() {
         let tokens = [];
+
+        const previousToken = this.previousToken;
+        this.eat(tokenTypes.whitespace);
+
+        if (this.currentToken.type == tokenTypes.pipe) {
+            this.previousToken = previousToken;
+            const choices = [previousToken];
+            this.eat(tokenTypes.pipe);
+            this.eat(tokenTypes.whitespace);
+            choices.push(...this.parse());
+            
+            const choice = arrayGetRandomChoice(choices);
+            // console.log(choices);
+            // console.log(choice);
+
+            tokens.push(choice);
         
-        this.eat(tokenTypes.less);
-        this.eat(tokenTypes.string);
-        const expandableToken = new Token(tokenTypes.expandable, this.previousToken.value);
-        this.eat(tokenTypes.greater);
+        } else {
+            tokens.push(previousToken);
+            tokens.push(this.previousToken);
+            tokens.push(...this.parse());
 
-        this.previousToken = expandableToken;
-
-        tokens.push(...this.parse());
-
-        return tokens;
-    }
-    parseString() {
-        let tokens = [];
-        
-        this.eat(tokenTypes.string);
-
-        tokens.push(...this.parse());
+        }
 
         return tokens;
     }
     parsePipe() {
         let tokens = [];
-
-        let choices = [this.previousToken];
+        
+        const previousToken = this.previousToken;
         this.eat(tokenTypes.pipe);
-        this.eat(tokenTypes.whitespace);
-        choices.push(...this.parse());
-
+        const choices = [previousToken, this.currentToken];
         const choice = arrayGetRandomChoice(choices);
+        this.currentToken = choice;
+        this.eat(this.currentToken.type);
 
-        tokens.push(choice);
-        tokens.push(...this.parse())
+        tokens.push(...this.parse());
 
         return tokens;
     }
-    parseEoi() {
-        const result = [];
-        
-        if (this.previousToken.type == tokenTypes.string) {
-            result.push(new Token(tokenTypes.whitespace, tokenTypes.whitespace));
-            result.push(this.previousToken);
+    parseExpandable() {
+        let tokens = [];
 
-        } else if (this.previousToken.type == tokenTypes.expandable) {
-            result.push(this.previousToken);
-        }
+        this.eat(tokenTypes.expandable);
+        tokens.push(...this.parse());
 
-        this.eat(tokenTypes.eoi);
-        return result;
+        return tokens;
     }
+
     parse() {
         let tokens = [];
         
-        if (this.currentToken.type === tokenTypes.eoi) {
-            tokens.push(...this.parseEoi());
-        }
-        
-        if (this.currentToken.type == tokenTypes.whitespace) {
-            tokens.push(...this.parseWhiteSpace());
-        }
-        
-        if (this.currentToken.type == tokenTypes.less) {
-            tokens.push(...this.parseAngleBracket());
-        } 
-        
-        if (this.currentToken.type == tokenTypes.string) {
-            tokens.push(...this.parseString());
-        }
-        
-        if (this.currentToken.type == tokenTypes.dot) {
-           tokens.push(...this.parseDot());     
+        if (this.currentToken.type == tokenTypes.eoi) {
+            tokens.push(this.previousToken);
         }
 
+        if (this.currentToken.type == tokenTypes.expandable) {
+            tokens.push(...this.parseExpandable());
+        }
+        
         if (this.currentToken.type == tokenTypes.pipe) {
-            tokens.push(...this.parsePipe());   
+            tokens.push(...this.parsePipe());
+        }
+
+        if (this.currentToken.type == tokenTypes.whitespace) {
+            tokens.push(...this.parseWhitespace());
+        }
+
+        if (this.currentToken.type == tokenTypes.string) {
+            tokens.push(...this.parseString());
         }
 
         return tokens;
