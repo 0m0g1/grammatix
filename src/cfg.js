@@ -176,8 +176,6 @@ class Parser {
             choices.push(...this.parse());
             
             const choice = arrayGetRandomChoice(choices);
-            // console.log(choices);
-            // console.log(choice);
 
             tokens.push(choice);
         

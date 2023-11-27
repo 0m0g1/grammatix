@@ -4,7 +4,7 @@ const generatedBtn = document.querySelector("#generate");
 const generatedContent = document.querySelector("#generated");
 
 const rules = {
-    "start": ["<article>|<noun>|<verb>"],
+    "start": ["This is a <article>|<noun>|<verb>"],
     "article": ["a | an | the"],
     "noun": ["cat | dog | cow"],
     "verb": ["jump | cut | sing"]
