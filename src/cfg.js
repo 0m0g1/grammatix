@@ -1,6 +1,7 @@
-function removeAngleBrackets(text) {
-    return text.replace("<", "").replace(">", "");
-}
+/**
+ * @author Davis Omogi
+ */
+
 
 function removeCharAtIndex(str, index) {
     if (index < 0 || index >= str.length) {
@@ -70,17 +71,22 @@ class Lexer {
             return new Token(tokenTypes.string, string);
         }
 
-        if (currentToken === "`") {
+        if (/[\n]/.test(currentToken)) {
+            this.currentPositionOnInput++;
+            return new Token(tokenTypes.whitespace, tokenTypes.whitespace);
+        }
+
+        if (currentToken === "'") {
             let string = "";
             this.currentPositionOnInput++;
             
-            while (this.input[this.currentPositionOnInput] !== "`") {
+            while (this.input[this.currentPositionOnInput] !== "'") {
                 if (this.currentPositionOnInput < this.input.length) {
                     string += this.input[this.currentPositionOnInput];
                     this.currentPositionOnInput++;
                 } else {
-                    const backtick = "`"
-                    throw(`Expected "${backtick}" at the end of "${string}"`);
+                    const backtick = "'"
+                    throw(`Expected "'" at the end of "${string}"`);
                 }
             }
             this.currentPositionOnInput++;
@@ -240,7 +246,12 @@ class cfg { //context free grammer
     modifyString(string, modifier) {
         if (modifier == modifiers.capitalized) {
             string = string.charAt(0).toUpperCase() + string.slice(1, string.length);
-            
+        }
+        if (modifier == modifiers.plural) {
+            string += "s";
+        }
+        if (modifier == modifier.linebreak) {
+            string += "<br>";
         }
 
         return string;
@@ -278,8 +289,7 @@ class cfg { //context free grammer
 
         return expansion;
     }
-    generateText(rules) {
-        this.rules = rules;
+    generateText() {
         const expansion = this.expand();
         return expansion.join("");
     }
