@@ -34,9 +34,6 @@ const Rules = {
             the days to come. With a contented sigh, she curled up by the hearth, dreaming of the next sunrise and
             the boundless adventures it would bring.
     `]
-
-
-
 }
 
 const rules = {
