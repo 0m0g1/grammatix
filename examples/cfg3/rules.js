@@ -8,7 +8,7 @@ const Rules = {
     "start": ["<sentence>"],
     "sentence": [
                     "<statement>.",
-                    "<query>`?`"
+                    "<query>'?'"
                 ],
     "statement": statements.statements,
     "query": queries.queries,    

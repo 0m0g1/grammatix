@@ -8,25 +8,25 @@ const simplePrepositions = [
 
 
 const compoundPrepositions = [
-        "`according to`|`along with`|`apart from`|`as for`|`as of`|`as per`|`aside from`|`because of`|",
-        "`by means of`|`close to`|`due to`|`except for`|`far from`|`in addition to`|`in front of`|`in place of`",
-        "`in spite of`|`instead of`|`on account of`|`out of`|`owing to`|`prior to`|`regardless of`",
-        "`with regard to`|`with respect to`|`with the exception of`"
+        "'according to'|'along with'|'apart from'|'as for'|'as of'|'as per'|'aside from'|'because of'|",
+        "'by means of'|'close to'|'due to'|'except for'|'far from'|'in addition to'|'in front of'|'in place of'",
+        "'in spite of'|'instead of'|'on account of'|'out of'|'owing to'|'prior to'|'regardless of'",
+        "'with regard to'|'with respect to'|'with the exception of'"
     ];
 
 
 const phrasalPrepositions = [
-        "`according to`|`as for`|`as of`|`aside from`|`because of`|`close to`|`due to`|`except for`",
-        "`far from`|`in addition to`|`in front of`|`in place of`|`in spite of`|`instead of`",
-        "`on account of`|`out of`|`owing to`|`prior to`|`regardless of`|`with regard to`|`with respect to`",
-        "`with the exception of`"
+        "'according to'|'as for'|'as of'|'aside from'|'because of'|'close to'|'due to'|'except for'",
+        "'far from'|'in addition to'|'in front of'|'in place of'|'in spite of'|'instead of'",
+        "'on account of'|'out of'|'owing to'|'prior to'|'regardless of'|'with regard to'|'with respect to'",
+        "'with the exception of'"
 ];
 
 
 const doublePrepositions = [
-        "`alongside`|`apart from`|`aside from`|`because of`|`by means of`|`close to`|`due to`",
-        "`except for`|`far from`|`inside of`|`instead of`|`near to`|`next to`|`on account of`",
-        "`outside of`|`owing to`|`prior to`|`up to`"
+        "'alongside'|'apart from'|'aside from'|'because of'|'by means of'|'close to'|'due to'",
+        "'except for'|'far from'|'inside of'|'instead of'|'near to'|'next to'|'on account of'",
+        "'outside of'|'owing to'|'prior to'|'up to'"
 ];
 
 const participlePrepositions = ["regarding", "following", "concerning", /* ... */];
