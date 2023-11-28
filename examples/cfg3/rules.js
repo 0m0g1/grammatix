@@ -1,4 +1,5 @@
 import nouns from "./structures/nouns.js";
+import prepositions from "./structures/prepositions.js";
 import pronouns from "./structures/pronouns.js";
 import queries from "./structures/query.js";
 import statements from "./structures/statements.js";
@@ -8,7 +9,7 @@ const Rules = {
     "start": ["<sentence>"],
     "sentence": [
                     "<statement>.",
-                    "<query>'?'"
+                    // "<query>'?'"
                 ],
     "statement": statements.statements,
     "query": queries.queries,    
@@ -31,7 +32,7 @@ const Rules = {
     "verb phrase": [
                     "<verb>",
                     "<adverb> <verb>",
-                    "<verb> <adverb>"
+                    // "<verb> <adverb>"
                 ],
     "relative clause": ["<relative pronoun> <verb phrase>"],
     "prepositional phrase": [
@@ -63,10 +64,17 @@ const Rules = {
     "intensive pronouns": pronouns.intensivePronouns,
     "proper noun": nouns.proper,
     "preposition": ["in|above|under|for"],
+    "simple preposition": prepositions.simple,
+    "compound preposition": prepositions.compound,
+    "phrasal preposition": prepositions.phrasal,
+    "double preposition": prepositions.double,
+    "participle preposition": prepositions.participle,
+    "phrases preposition": prepositions.prepositionalPhrases,
     "relative pronoun": ["which|who|that"],
     "adjective": ["big|small|red|yellow|bright|blue|beautiful|ugly"],
     "adverb": ["slowly|quickly|efficiently|gently|excitedly"],
-    "interjection": ["oh|my|wow|damn"],
+    "interjection": ["oh|my|wow|ouch|yay|oops|bravo|well|hey|phew|ah|alas|voila|'oh dear'|'oh no'|yikes|eureka|ahem|bingo|cheers|goodbye|hello|hurrah"]
+    
 };
 
 

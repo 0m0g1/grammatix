@@ -37,6 +37,12 @@ const queries = {
         "<adjective> <verb> <pronoun> <auxillary verb> <verb>",
         "<interrogative pronoun> <imperfect auxillary verb> <imperfect verb> <adjective> <noun>",
         "<adverb> <adjective> <interjection> <pronoun> <auxillary verb>",
+        "<interrogative pronoun> <past verb> <determined noun phrase>",
+        "<interrogative pronoun> <noun phrase> <imperfect auxillary verb> <imperfect verb> <determined noun phrase>",
+        "<adverb> <verb> <interrogative pronoun>",
+        "<determined noun phrase> <verb> <interrogative pronoun>",
+        "<interrogative pronoun> <do verb> <demonstrative pronoun>",
+        "<interrogative pronoun> <imperfect auxillary verb> <imperfect verb>",
     ]
 };
 
