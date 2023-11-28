@@ -35,9 +35,7 @@ const statements = {
         "<adjective> <noun> <conjuction> <adjective> <noun>",
         "<adjective> <adjective> <verb> <adjective> <noun>",
         "<adjective> <verb> <pronoun> <auxillary verb> <verb>",
-        "<interrogative pronoun> <imperfect auxillary verb> <imperfect verb> <adjective> <noun>",
-        "<adverb> <adjective> <interjection> <pronoun> <auxillary verb>",
-        "<determined noun phrase> <verb> <adverb> <adjective> <noun>"
+        "<interrogative pronoun> <imperfect auxillary verb> <imperfect verb> <determinaned noun phrase>",
     ]   
 }
 
