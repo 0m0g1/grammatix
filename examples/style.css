@@ -7,4 +7,6 @@ button {
 
 #generated {
     background-color: lightgrey;
+    min-height: 1rem;
+    min-width: 100%;
 }

@@ -4,17 +4,20 @@ const generatedBtn = document.querySelector("#generate");
 const generatedContent = document.querySelector("#generated");
 
 const rules = {
-    "start":[   ["<article>", "<adjective>", "<noun>", "."] ],
-    "article": [["a"], ["an"], ["the"]],
-    "adjective": [["slow"], ["fast"], ["big"], ["slim"]],
-    "noun": [["cat"], ["dog"], ["cow"]]
-};
-
-const rule = {
-    "start": ["<article> <noun>."],
-    "article": ["a | an | the"],
-    "noun": ["cat", "dog", "cow"]
+    "start": ["<sentence>"],
+	"sentence": ["<NP> <VP>", "<Interj> <NP> <VP>"],
+	"NP": ["<Det> <N>", "<Det> <N> that <VP>", "<Det> <Adj> <N>", "<Det> <N> <PP>"],
+	"PP": ["<Prep> <NP>"],
+	"Prep": ["in", "on", "over", "against"],
+	"VP": ["<Vtrans> <NP>", "<Vintr>"],
+	"Interj": ["oh,", "my,", "wow,", "damn,"],
+	"Det": ["this", "that", "the"],
+	"N": ["amoeba", "dichotomy", "seagull", "trombone", "corsage", "restaurant", "suburb"],
+	"Adj": ["bald", "smug", "important", "tame", "overstaffed", "luxurious", "blue"],
+	"Vtrans": ["computes", "examines", "foregrounds", "prefers", "interprets", "spins"],
+	"Vintr": ["coughs", "daydreams", "whines", "slobbers", "vocalizes", "sneezes"]
 }
+
 
 const contextFreeGrammer = new cfg();
 

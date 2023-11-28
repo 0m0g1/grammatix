@@ -17,7 +17,7 @@ function getRndInteger(min, max) {
 }
 
 function arrayGetRandomChoice(array) {
-    return array[getRndInteger(0, array.length -1)];
+    return array[getRndInteger(0, array.length - 1)];
 }
 
 const noneSpaceCharacters = [".", "?", "!"]
@@ -36,14 +36,11 @@ const tokenTypes = Object.freeze({
     "invalid": "invalid"
 })
 
-const rules = {
-    "start":[   ["<article>", "<adjective>", "<noun>", "."],
-                ["<interogative>", "<linking verb>", "<article>", "<noun>", "?"]
-            ],
-    "article": [["a"], ["an"], ["the"]],
-    "adjective": [["slow"], ["fast"], ["big"], ["slim"]],
-    "noun": [["cat"], ["dog"], ["cow"]]
-};
+const modifiers = Object.freeze({
+    "capitalized": "capitalized",
+    "plural": "plural",
+})
+
 
 class Token {
     constructor(type = tokenTypes.invalid, value = null) {
@@ -60,16 +57,9 @@ class Lexer {
     getNextToken() {
         const currentToken = this.input[this.currentPositionOnInput];
 
-        if (this.currentPositionOnInput >= this.input.length - 1) {
+        if (this.currentPositionOnInput >= this.input.length) {
             return new Token(tokenTypes.eoi);
         }
-        
-        // if (/[\s]/.test(currentToken)) {
-        //     while (/\s/.test(this.input[this.currentPositionOnInput]) && this.currentPositionOnInput < this.input.length) {
-        //         this.currentPositionOnInput++;
-        //         currentToken = this.input[this.currentPositionOnInput];
-        //     }
-        // }
         
         if (/[a-zA-Z0-9]/.test(currentToken)) {
             let string = "";
@@ -80,16 +70,17 @@ class Lexer {
             return new Token(tokenTypes.string, string);
         }
 
-        if (currentToken === "'") {
+        if (currentToken === "`") {
             let string = "";
             this.currentPositionOnInput++;
             
-            while (this.input[this.currentPositionOnInput] !== "'") {
+            while (this.input[this.currentPositionOnInput] !== "`") {
                 if (this.currentPositionOnInput < this.input.length) {
                     string += this.input[this.currentPositionOnInput];
                     this.currentPositionOnInput++;
                 } else {
-                    throw(`Expected "'" at the end of "${string}"`);
+                    const backtick = "`"
+                    throw(`Expected "${backtick}" at the end of "${string}"`);
                 }
             }
             this.currentPositionOnInput++;
@@ -153,80 +144,68 @@ class Parser {
 
         this.eat(tokenTypes.string);
 
-        if (this.currentToken.type == tokenTypes.whitespace) {
-            tokens.push(...this.parse());
-
-        } else if (this.currentToken.type == tokenTypes.pipe) {
-            tokens.push(...this.parse());
+        if (this.currentToken.type == tokenTypes.pipe) {
+            const choice = this.parsePipe();
+            tokens.push(choice);
         } else {
             tokens.push(this.previousToken);
-            tokens.push(...this.parse());
+        }
+
+        tokens.push(...this.parse());
 
         return tokens;
     }
     parseWhitespace() {
         let tokens = [];
 
-        const previousToken = this.previousToken;
+        tokens.push(this.currentToken);
         this.eat(tokenTypes.whitespace);
 
-        if (this.currentToken.type == tokenTypes.pipe) {
-            this.previousToken = previousToken;
-            const choices = [previousToken];
-            this.eat(tokenTypes.pipe);
-            this.eat(tokenTypes.whitespace);
-            choices.push(...this.parse());
-            
-            const choice = arrayGetRandomChoice(choices);
-
-            tokens.push(choice);
-        
-        } else {
-            tokens.push(previousToken);
-            tokens.push(this.previousToken);
-            tokens.push(...this.parse());
-
-        }
-        
+        tokens.push(...this.parse());
         
         return tokens;
     }
     parsePipe() {
-        let tokens = [];
-        
         const previousToken = this.previousToken;
-        this.eat(tokenTypes.pipe);
-        const choices = [previousToken, this.currentToken];
+        const choices = [previousToken];
+        
+        while (this.currentToken.type === tokenTypes.pipe) {
+            this.eat(tokenTypes.pipe);
+            choices.push(this.currentToken);
+            this.eat(this.currentToken.type);
+        }
+
         const choice = arrayGetRandomChoice(choices);
-        this.currentToken = choice;
-        this.eat(this.currentToken.type);
+        this.previousToken = choice;
 
-        tokens.push(...this.parse());
-
-        return tokens;
+        return choice;
     }
     parseExpandable() {
         let tokens = [];
 
         this.eat(tokenTypes.expandable);
+
+        if (this.currentToken.type == tokenTypes.pipe) {
+            const choice = this.parsePipe();
+            tokens.push(choice);
+        } else {
+            tokens.push(this.previousToken);
+        }
+
         tokens.push(...this.parse());
 
-        return tokens;
+        return tokens
     }
 
     parse() {
         let tokens = [];
-        
-        if (this.currentToken.type == tokenTypes.eoi) {
-            tokens.push(this.previousToken);
-        }
 
         if (this.currentToken.type == tokenTypes.expandable) {
             tokens.push(...this.parseExpandable());
         }
         
         if (this.currentToken.type == tokenTypes.pipe) {
-            tokens.push(...this.parsePipe());
+            tokens.push(this.parsePipe());
         }
 
         if (this.currentToken.type == tokenTypes.whitespace) {
@@ -258,18 +237,35 @@ class cfg { //context free grammer
         this.rules = {};
         this.tokenizer = new Tokenizer();
     }
+    modifyString(string, modifier) {
+        if (modifier == modifiers.capitalized) {
+            string = string.charAt(0).toUpperCase() + string.slice(1, string.length);
+            
+        }
 
+        return string;
+    }
     expand(token = new Token(tokenTypes.expandable, "start"), expansion = []) {
         if (token.type == tokenTypes.expandable) {
-            if (this.rules[token.value]) {
-                const pick = arrayGetRandomChoice(this.rules[token.value]); //Pick a random string from the array of structures
+            const tokenString = token.value.split(".")[0];
+            if (this.rules[tokenString]) {
+                const pick = arrayGetRandomChoice(this.rules[tokenString]); //Pick a random string from the array of structures
                 const tokens = this.tokenizer.tokenize(pick);
                 
                 tokens.forEach((tokenItem) => {
                     if (tokenItem.type === tokenTypes.expandable) {
                         expansion.push(...this.expand(tokenItem));
                     } else {
-                        expansion.push(tokenItem.value);
+                        const string = tokenItem.value;
+                        let modifiers = token.value.split(".");
+                        modifiers = modifiers.slice(1, modifiers.length);
+                        let result = string;
+
+                        modifiers.forEach((modifier) => {
+                            result = this.modifyString(result, modifier);
+                        })
+
+                        expansion.push(result);
                     }
                 });
                 
@@ -285,7 +281,6 @@ class cfg { //context free grammer
     generateText(rules) {
         this.rules = rules;
         const expansion = this.expand();
-        // console.log(expansion);
         return expansion.join("");
     }
 }
