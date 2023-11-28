@@ -6,7 +6,7 @@ const generatedContent = document.querySelector("#generated");
 const contextFreeGrammer = new cfg();
 
 contextFreeGrammer.rules = {
-    "start": ["In this example <noun.plural> is pluralized and the other picled word <noun.capitalize>|<verb.capitalized> is capitalized."],
+    "start": ["In this example <noun.plural> is pluralized and the other picked word <noun.capitalize>|<verb.capitalized> is capitalized."],
     "article": ["a|an|the"],
     "noun": ["cat|dog|cow"],
     "verb": ["jump|cut|sing"]
