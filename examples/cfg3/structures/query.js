@@ -16,7 +16,7 @@ const queries = {
         "<adjective> <noun> <verb>",
         "<pronoun> <verb> <interrogative pronoun>",
         "<adverb> <verb> <interrogative pronoun>",
-        "<determinant> <adjective> <noun>",
+        "<determinaned noun phrase>",
         "<interrogative pronoun> <verb> <determined noun phrase>",
         "<interrogative pronoun> <verb> <plural noun phrase>",
         "<determined noun phrase> <verb> <adverb>",

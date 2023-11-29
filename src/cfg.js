@@ -33,6 +33,7 @@ const tokenTypes = Object.freeze({
     "comma": ",",
     "dot": ".",
     "string": "string",
+    "variable": "variable",
     "eoi": "eoi",
     "invalid": "invalid"
 })
@@ -43,27 +44,30 @@ const modifiers = Object.freeze({
 })
 
 
-class Token {
+class Token { //The base class for all tokens
     constructor(type = tokenTypes.invalid, value = null) {
         this.type = type;
         this.value = value;
+        this.rootStructure = "";
     }
 }
 
-class Lexer {
+class Lexer { //A class to convert text inputs to tokens
     constructor(input) {
         this.input = input;
         this.currentPositionOnInput = 0;
     }
-    getNextToken() {
+    getNextToken() { //Gets the next token in the input string
         const currentToken = this.input[this.currentPositionOnInput];
 
-        if (this.currentPositionOnInput >= this.input.length) {
+        if (this.currentPositionOnInput >= this.input.length) { //If the position being looked at in the input string is past the inputs length
             return new Token(tokenTypes.eoi);
         }
         
-        if (/[a-zA-Z0-9]/.test(currentToken)) {
+        if (/[a-zA-Z0-9]/.test(currentToken)) { //Check if the current character in the input is a letter or number
             let string = "";
+
+            //As long as the character is a letter or digit get the character and add it to the string variable
             while (/[a-zA-Z0-9]/.test(this.input[this.currentPositionOnInput]) && this.currentPositionOnInput < this.input.length) {
                 string += this.input[this.currentPositionOnInput];
                 this.currentPositionOnInput++;
@@ -71,21 +75,24 @@ class Lexer {
             return new Token(tokenTypes.string, string);
         }
 
-        if (/[\n]/.test(currentToken)) {
+        if (/[\n]/.test(currentToken)) { //If the current character is a newline character replace it with a space
             this.currentPositionOnInput++;
             return new Token(tokenTypes.whitespace, tokenTypes.whitespace);
         }
 
+        //Another format for string tokens
+        //Any character in between single quotes is a string token
         if (currentToken === "'") {
             let string = "";
             this.currentPositionOnInput++;
             
+            //If the current character is not a single qoute its part of the string
             while (this.input[this.currentPositionOnInput] !== "'") {
                 if (this.currentPositionOnInput < this.input.length) {
                     string += this.input[this.currentPositionOnInput];
                     this.currentPositionOnInput++;
-                } else {
-                    const backtick = "'"
+
+                } else { //If you've reached the end of the input string and there was no closing qoute throw an error
                     throw(`Expected "'" at the end of "${string}"`);
                 }
             }
@@ -94,11 +101,96 @@ class Lexer {
             return new Token(tokenTypes.string, string);
         }
 
-        if (currentToken == "<") {
-            let tokenString = "";
+        //Expandable token and variable token
+        if (currentToken == "<") { //Their first character is less angle bracket
             this.currentPositionOnInput++;
 
-            while (this.input[this.currentPositionOnInput] !== ">") {
+            /**
+             * If the next character after the < character is a single quote the token is a variable
+             * This validates if the structure of the variable token is <'string' -> 'string'> 
+             */
+            if (this.input[this.currentPositionOnInput] === "'") {
+                let variableName = "";
+                let rootStructure = "";
+
+                this.currentPositionOnInput++
+
+                while (this.input[this.currentPositionOnInput] != "'") {
+                    if (this.currentPositionOnInput < this.input.length) {
+                        variableName += this.input[this.currentPositionOnInput];
+                        this.currentPositionOnInput++;
+                    } else {
+                        throw(`Expected "' -> string>" after "'${variableName}'"`);
+                    }
+                }
+                this.currentPositionOnInput++;
+
+                if (this.input[this.currentPositionOnInput] == " ") {
+                    this.currentPositionOnInput++;
+                }
+                
+                if (this.input[this.currentPositionOnInput] == "-") {
+                    this.currentPositionOnInput++;
+                    
+                    if (this.input[this.currentPositionOnInput] == ">") {
+                        this.currentPositionOnInput++;
+
+                    } else {
+                        throw(`Expected "> 'string'>" after "'${variableName}"' -"`);
+                        
+                    }
+                    if (this.input[this.currentPositionOnInput] == " ") {
+                        this.currentPositionOnInput++;
+                    }
+
+                } else {
+                    throw(`Expected "-> 'structure name' after ${variableName}"`);
+                }
+
+                if (this.input[this.currentPositionOnInput] === " ") {
+                    this.currentPositionOnInput++;
+                }
+
+                if (this.input[this.currentPositionOnInput] === "'") {
+                    this.currentPositionOnInput++;
+
+                    while (this.input[this.currentPositionOnInput] !== "'") {
+                        if (this.currentPositionOnInput < this.input.length) {
+                            rootStructure += this.input[this.currentPositionOnInput];
+                            this.currentPositionOnInput++;
+                        } else {
+                            throw(`Expected "'" after "${rootStructure}"`);
+                        }
+                    }
+
+                } else {
+                    throw(`Expected "structure name" after "<'${variableName}' -> "`);
+
+                }
+
+                this.currentPositionOnInput++;
+                
+                if (this.input[this.currentPositionOnInput] != ">") {
+                    throw(`Expected ">" after "'${rootStructure}'"`);
+                }
+                
+                this.currentPositionOnInput++;
+
+                const variableToken = new Token(tokenTypes.variable, variableName);
+                variableToken.rootStructure = rootStructure;
+
+                return variableToken;
+            }
+
+            //Expandable token
+            /**
+             * If the next character after the < character is letter then the token is an expandable token
+             * This validates if the structure of the variable token is <string>
+             * As long as the current token in the input is not ">" add that character to the string token
+            */
+            let tokenString = "";
+
+            while (this.input[this.currentPositionOnInput] !== ">") { 
                 if (this.currentPositionOnInput < this.input.length) {
                     tokenString += this.input[this.currentPositionOnInput];
                     this.currentPositionOnInput++;
@@ -106,12 +198,13 @@ class Lexer {
                     throw(`Expected ">" at the end of <${tokenString}`);
                 }
             }
+
             this.currentPositionOnInput++;
 
             return new Token(tokenTypes.expandable, tokenString);
         }
 
-        switch (currentToken) {
+        switch (currentToken) {//Other tokens
             case " ":
                 this.currentPositionOnInput++;
                 return new Token(tokenTypes.whitespace, tokenTypes.whitespace);
@@ -130,6 +223,11 @@ class Lexer {
     }
 }
 
+//Parser
+/**
+ * Performs operations on the tokens with other tokens
+ * It throws an error if the structure of tokens is wrong for example
+ */
 class Parser {
     constructor(lexer) {
         this.lexer = lexer;
@@ -137,11 +235,13 @@ class Parser {
         this.currentToken = this.lexer.getNextToken();
         this.generatedTokens = [];
     }
-    eat(tokenType) {
-        if (this.currentToken.type === tokenType) {
+    //
+    eat(tokenType) { //Check if the current token type is the expected token type
+        if (this.currentToken.type === tokenType) { //If the current token type is expected move to the next token
             this.previousToken = this.currentToken;
             this.currentToken = this.lexer.getNextToken();
-        } else {
+
+        } else { //If the current token type is not expected throw an error
             throw(`Unexpected "${this.currentToken.type}" token, "${tokenType}" expected`);
         }
     }
@@ -202,7 +302,16 @@ class Parser {
 
         return tokens
     }
+    parseVariable() {
+        let tokens = [];
 
+        tokens.push(this.currentToken);
+        this.eat(tokenTypes.variable);
+        this.eat(tokenTypes.whitespace);
+        tokens.push(...this.parse());
+
+        return tokens;
+    }
     parse() {
         let tokens = [];
 
@@ -212,6 +321,10 @@ class Parser {
         
         if (this.currentToken.type == tokenTypes.pipe) {
             tokens.push(this.parsePipe());
+        }
+
+        if (this.currentToken.type == tokenTypes.variable) {
+            tokens.push(...this.parseVariable());
         }
 
         if (this.currentToken.type == tokenTypes.whitespace) {
@@ -226,7 +339,7 @@ class Parser {
     }
 }
 
-class Tokenizer {
+class Tokenizer { //Breaks the inputed string into a list of tokens
     constructor() {
         this.lexer = null;
         this.Parser = null;
@@ -243,6 +356,7 @@ class cfg { //context free grammer
         this.rules = {};
         this.tokenizer = new Tokenizer();
     }
+    // Modifies the string based on the given modifier
     modifyString(string, modifier) {
         if (modifier == modifiers.capitalized) {
             string = string.charAt(0).toUpperCase() + string.slice(1, string.length);
@@ -256,6 +370,11 @@ class cfg { //context free grammer
 
         return string;
     }
+    // Creates a variable token
+    createVariable(token) {
+        const structure = new Token(tokenTypes.expandable, token.rootStructure);
+        this.rules[token.value] = this.expand(structure);
+    }
     expand(token = new Token(tokenTypes.expandable, "start"), expansion = []) {
         if (token.type == tokenTypes.expandable) {
             const tokenString = token.value.split(".")[0];
@@ -266,6 +385,10 @@ class cfg { //context free grammer
                 tokens.forEach((tokenItem) => {
                     if (tokenItem.type === tokenTypes.expandable) {
                         expansion.push(...this.expand(tokenItem));
+
+                    } else if (tokenItem.type === tokenTypes.variable) {
+                        this.createVariable(tokenItem);
+
                     } else {
                         const string = tokenItem.value;
                         let modifiers = token.value.split(".");
