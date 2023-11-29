@@ -418,4 +418,13 @@ class cfg { //context free grammer
     }
 }
 
-export default cfg;
+
+class GrammatiX {
+    generateText(rules) {
+        const textGenerator = new cfg();
+        textGenerator.rules = rules;
+        return textGenerator.generateText();
+    }
+}
+
+export default GrammatiX;

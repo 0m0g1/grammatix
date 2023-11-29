@@ -13,8 +13,7 @@ const Rules = {
         `],
     "names" : ["Atlas|Bosco|Timothy|Anabelle|Anabeth"],
     "character": ["doctor|writer|knight|physician|engineer|artist|soldire"],
-    "evil character": ["alchemist|terorist|knight|dragon|lion|king|monster|terorist"],
-    "locations": ["city|mountain|hill|cave|apartment|park|valley|river"]
+    "evil character": ["alchemist|terorist|knight|dragon|lion|king|monster|terorist"]
 }
 
 export default Rules;

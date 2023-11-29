@@ -1,11 +1,12 @@
-import cfg from "../../src/cfg.js";
+import GrammatiX from "../../src/grammatix.js";
+
 
 const generatedBtn = document.querySelector("#generate");
 const generatedContent = document.querySelector("#generated");
 
-const contextFreeGrammer = new cfg();
+const contextFreeGrammer = new GrammatiX();
 
-contextFreeGrammer.rules = {
+const rules = {
 		"start": ["<sentence>"],
 		"sentence": ["<noun phrase> <verb phrase>", "<interjection> <noun phrase> <verb phrase>"],
 		"noun phrase": ["<determinant> <noun>", "<determinant> <noun> that <verb phrase>", "<determinant> <Adj> <noun>", "<determinant> <noun> <PP>"],
@@ -23,5 +24,5 @@ contextFreeGrammer.rules = {
 
 
 generatedBtn.onclick = () => {
-    generatedContent.innerHTML = contextFreeGrammer.generateText();
+    generatedContent.innerHTML = contextFreeGrammer.generateText(rules);
 }
