@@ -307,7 +307,6 @@ class Parser {
 
         tokens.push(this.currentToken);
         this.eat(tokenTypes.variable);
-        this.eat(tokenTypes.whitespace);
         tokens.push(...this.parse());
 
         return tokens;
@@ -362,6 +361,7 @@ class cfg { //context free grammer
             string = string.charAt(0).toUpperCase() + string.slice(1, string.length);
         }
         if (modifier == modifiers.plural) {
+            // console.log(string);
             string += "s";
         }
         if (modifier == modifier.linebreak) {
@@ -373,11 +373,17 @@ class cfg { //context free grammer
     // Creates a variable token
     createVariable(token) {
         const structure = new Token(tokenTypes.expandable, token.rootStructure);
-        this.rules[token.value] = this.expand(structure);
+        
+        if (this.rules[token.rootStructure]) {
+            this.rules[token.value] = this.expand(structure);
+        } else {
+            throw(`Cannot create variable "${token.value}", root structure "${token.rootStructure}" does not exist`)
+        }
     }
     expand(token = new Token(tokenTypes.expandable, "start"), expansion = []) {
         if (token.type == tokenTypes.expandable) {
             const tokenString = token.value.split(".")[0];
+            console.log(tokenString);
             if (this.rules[tokenString]) {
                 const pick = arrayGetRandomChoice(this.rules[tokenString]); //Pick a random string from the array of structures
                 const tokens = this.tokenizer.tokenize(pick);
@@ -394,8 +400,9 @@ class cfg { //context free grammer
                         let modifiers = token.value.split(".");
                         modifiers = modifiers.slice(1, modifiers.length);
                         let result = string;
-
+                        
                         modifiers.forEach((modifier) => {
+                            console.log(string)
                             result = this.modifyString(result, modifier);
                         })
 
