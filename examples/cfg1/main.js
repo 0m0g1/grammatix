@@ -11,17 +11,17 @@ const rules = {
             <'name' -> 'names'>
             <'occupation' -> 'occupations'>
     `],
-    "names": ["davis|sheillah|angela|ben|tony|willis|jeff"],
-    "occupations": ["engineer|doctor|writer|farmer"],
+    "names": ["davis|ian|sheillah|kate|sheldon|angela|ben|tony|willis|jeff"],
+    "occupations": ["engineer|doctor|writer|farmer|knight|soldire|dentist|pharmacist"],
     "story": [`
-                Once upon a time there lived a <occupation> called <name.capitalized>.
-                <name.capitalized> wanted to join the guild of <occupation.plural>.
+                Once upon a time there lived a <occupation.bold> called <name.capitalized.italicized>.
+                <name.capitalized.italicized> wanted to join the guild of <occupation.plural>.
                 '<br>'
                 <'old occupation' -> 'occupation'>
                 <'occupation' -> 'occupations'> 
                 After failing the test to join the guild he changed his new occupation to '<b>'<occupation>'</b>'.
                 '<br>'
-                So <name.capitalized> the former <old occupation> promised to read more for any tests that he might want to take
+                So <name.capitalized.italicized> the former <old occupation.bold> and current <occupation.bold> promised to read more for any tests that he might want to take
                 in future.
             `]
 }

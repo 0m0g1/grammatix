@@ -48,7 +48,7 @@ const rules = {
     "names": ["davis|sheillah|angela|ben|tony|willis|jeff"],
     "occupations": ["engineer|doctor|writer|farmer"],
     "story": [`
-                Once upon a time there lived a <occupation> called <name.capitalized>.
+                Once upon a time there lived a <occupation> called '<b>'<name.capitalized>'</b>'.
                 <name.capitalized> wanted to join the guild of <occupation.plural>.
             `]
 }
@@ -137,7 +137,28 @@ Grammatix moves on to expand the story. It replaces every `<occupation>` variabl
 `]
 ```
 
-In this example There are some modifiers used `.capitalized` and `.plural`. These modifiers make the first letter capitalized and add an `s` to the string respectively. So that you don't have to redifine the variables again.
-More modifiers will be added later.
+In this example There are some modifiers used `.capitalized` and `.plural`. These modifiers make the first letter capitalized and add an `s` to the string respectively. You can also chain modifiers `<name.capitalized.italicized>` will produce a bold and italicized text. 
+
+This makes it simple to modifiy texts without redifining them for example if you had a word that didn't have to be capital but came at the beginnig of the text it had to be capital. You can just modify it.
 
 You can see this example in action [here](https://studio-0m0g1.github.io/cfg/examples/cfg1/cfg.html)
+The source code the the example is [here](https://github.com/studio-0m0g1/cfg/blob/main/examples/cfg1/main.js)
+
+## Html tags
+
+There are two types of strings in `Grammatix`:
+
+- Any kind of letter or number that isn't in between angle brackets is taken as a string
+- Any character that is written in between single quotes
+
+What ever is written in between single qoutes is parsed as a single string token and placed into your generated text as is.
+
+There are many use cases for quoted strings like:
+
+- Using html tags in your structures by putting them in single quotes for example `'<b>'Hi'</b>'` will create a bold hi statement. This allows you to style and manipulate your text generated text with more freedom with things like ids `'<span id = "text" >Hello world</span>'`
+
+- So for example you wanted to write `<name>` in your text without it being expanded and resulting in an error because the `rules.name` structure does not exist you can use single quotes `'<name>'` like so to just output `<name>` without it being taken as an expandable token structure.
+
+- Also most special characters will bring about an error because they are invalid tokens that might have other uses later as gramatix progresses so in order to use them you have to surround them in single quotes like so: `'!'`,`'?'` or `'@'`.
+
+- Single qoutes are also used to make compund words. That is two or more words or characters that are to be interprated as a single token for example a person's name like `'Timothy George'` or book titles `'This is a long book title'` all of these words and names will be taken as a single string token.

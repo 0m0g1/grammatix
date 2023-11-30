@@ -41,6 +41,8 @@ const tokenTypes = Object.freeze({
 const modifiers = Object.freeze({
     "capitalized": "capitalized",
     "plural": "plural",
+    "bold": "bold",
+    "italicized": "italicized"
 })
 
 
@@ -359,13 +361,20 @@ class cfg { //context free grammer
     modifyString(string, modifier) {
         if (modifier == modifiers.capitalized) {
             string = string.charAt(0).toUpperCase() + string.slice(1, string.length);
-        }
-        if (modifier == modifiers.plural) {
-            // console.log(string);
+        
+        } else if (modifier == modifiers.plural) {
             string += "s";
-        }
-        if (modifier == modifier.linebreak) {
+
+        } else if (modifier == modifier.linebreak) {
             string += "<br>";
+        
+        } else if (modifier == modifiers.bold) {
+            string = `<b>${string}</b>`;
+        
+        } else if (modifier == modifiers.italicized) {
+            string = `<i>${string}</i>`;
+        } else {
+            throw(`The given modifier "${modifier} "for token "${string}" does not exist`);
         }
 
         return string;
@@ -383,7 +392,6 @@ class cfg { //context free grammer
     expand(token = new Token(tokenTypes.expandable, "start"), expansion = []) {
         if (token.type == tokenTypes.expandable) {
             const tokenString = token.value.split(".")[0];
-            console.log(tokenString);
             if (this.rules[tokenString]) {
                 const pick = arrayGetRandomChoice(this.rules[tokenString]); //Pick a random string from the array of structures
                 const tokens = this.tokenizer.tokenize(pick);
@@ -402,7 +410,6 @@ class cfg { //context free grammer
                         let result = string;
                         
                         modifiers.forEach((modifier) => {
-                            console.log(string)
                             result = this.modifyString(result, modifier);
                         })
 
