@@ -21,7 +21,7 @@ const rules = {
                 <'occupation' -> 'occupations'> 
                 After failing the test to join the guild he changed his new occupation to '<b>'<occupation>'</b>'.
                 '<br>'
-                So <name.capitalized.italicized> the former <old occupation.bold> and current <occupation.bold> promised to read more for any tests that he might want to take
+                So <name.capitalized.italicized> the former <old occupation.bold> now a <occupation.bold> promised to read more for any tests that he might want to take
                 in future.
             `]
 }
