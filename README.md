@@ -6,6 +6,8 @@ The Grammatix system is a JavaScript implementation of a context-free grammar fo
 
 It is a text expansion library in short.
 
+[A link to some of the places grammatix has been used](https://0m0g1.github.io/grammatix)
+
 ## Introduction
 
 ### Example
